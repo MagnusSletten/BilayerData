@@ -1,0 +1,37 @@
+name: Process info file
+
+permissions:
+  contents: write
+
+on:
+  push:
+    paths:
+      - 'UserData/**'
+
+jobs:
+  AddData:
+    runs-on: nrec-large
+    container:
+      image: nmrlipids/core
+    env:
+      NMLDB_DATA_PATH: ${{ github.workspace }}
+      NMLDB_SIMU_PATH: ${{ github.workspace }}/Simulations
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+   
+      - name: Check out Databank
+        uses: actions/checkout@v4
+        with:
+          ref: dev_info_process
+          repository: MagnusSletten/Databank
+          path: Databank
+
+      - name: Computing new data
+        working-directory: Databank
+        env:
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+          TQDM_DISABLE:      "True"
+        run: |
+          pip install -e . -r Scripts/DatabankLib/requirements-dev.txt 
+          python Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.pyq
