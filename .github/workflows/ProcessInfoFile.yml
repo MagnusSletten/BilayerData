@@ -34,4 +34,4 @@ jobs:
           TQDM_DISABLE:      "True"
         run: |
           pip install -e . -r Scripts/DatabankLib/requirements-dev.txt 
-          python Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.pyq
+          python Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.py
