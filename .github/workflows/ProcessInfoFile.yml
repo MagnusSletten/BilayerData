@@ -36,4 +36,4 @@ jobs:
         working-directory: "Databank" 
         run: |
           pip install -e .  -r ./Scripts/DatabankLib/requirements-dev.txt
-          python ./Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.py
+          python Scripts/WorkflowScripts/DockerRunInstructions/ProcessUserInfoFile.py
