@@ -19,19 +19,21 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-   
+        with:
+          path: .
+
       - name: Check out Databank
         uses: actions/checkout@v4
         with:
-          ref: dev_info_process
           repository: MagnusSletten/Databank
+          ref: dev_info_process
           path: Databank
 
       - name: Computing new data
         working-directory: Databank
         env:
-          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
-          TQDM_DISABLE:      "True"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TQDM_DISABLE: "True"
         run: |
-          pip install -e . -r Scripts/DatabankLib/requirements-dev.txt 
+          pip install -e . -r Scripts/DatabankLib/requirements-dev.txt
           python Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.py
