@@ -20,14 +20,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          path:  ${{ github.workspace }}/BilayerData
+          path:  ${{ github.workspace }}
 
       - name: Check out Databank
         uses: actions/checkout@v4
         with:
           repository: MagnusSletten/Databank
           ref: dev_info_process
-          path:  ${{ github.workspace }}/Databank
+          path:  ${{ github.workspace }}
 
       - name: Computing new data
         # now “Databank” unambiguously refers to $GITHUB_WORKSPACE/Databank
