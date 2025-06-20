@@ -1,0 +1,26 @@
+DOI: 10.5281/zenodo.11614468
+SOFTWARE: gromacs
+TRJ: 566.xtc
+TPR: 566.tpr
+PREEQTIME: 0
+TIMELEFTOUT: 0
+DIR_WRK: /usr/home/bort/Databank
+UNITEDATOM_DICT: ""
+TYPEOFSYSTEM: ""
+SYSTEM: ""
+PUBLICATION: ""
+AUTHORS_CONTACT: Jesper J Madsen
+BATCHID: ""
+SOFTWARE_VERSION: ""
+FF: Lipid14
+FF_SOURCE: ""
+FF_DATE: ""
+CPT: ""
+LOG: ""
+TOP: ""
+EDR: ""
+TRAJECTORY_SIZE: ""
+COMPOSITION:
+  PC:
+    NAME: PC
+    MAPPING: mappingPOPClipid14.yaml
