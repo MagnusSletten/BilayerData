@@ -17,22 +17,23 @@ jobs:
       NMLDB_DATA_PATH: ${{ github.workspace }}/BilayerData
       NMLDB_SIMU_PATH: ${{ github.workspace }}/BilayerData/Simulations
     steps:
-      - name: Check out repository
+      - name: Checkout BilayerData (this repository)
         uses: actions/checkout@v4
         with:
           path: BilayerData
 
-      - name: Check out Databank
+      - name: Checkout Databank
         uses: actions/checkout@v4
         with:
           repository: MagnusSletten/Databank
           ref: dev_info_process
           path: Databank
 
-      - name: Computing new data
+      - name: Compute new data
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TQDM_DISABLE: "True"
+        working-directory: "Databank" 
         run: |
-          pip install -e ${{ github.workspace }}/Databank -r ${{ github.workspace }}/Databank/Scripts/DatabankLib/requirements-dev.txt
-          python ${{ github.workspace }}/Databank/Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.py
+          pip install -e  -r ./Scripts/DatabankLib/requirements-dev.txt
+          python ./Scripts/WorkflowScripts/DockerRunInstructions/GetNewData.py
