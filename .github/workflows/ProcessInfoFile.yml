@@ -14,24 +14,24 @@ jobs:
     container:
       image: nmrlipids/core
     env:
-      NMLDB_DATA_PATH: ${{ github.workspace }}/BilayerData
-      NMLDB_SIMU_PATH: ${{ github.workspace }}/BilayerData/Simulations
+      NMLDB_DATA_PATH: ./BilayerData
+      NMLDB_SIMU_PATH: ./BilayerData/Simulations
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          path:  ${{ github.workspace }}
+          path:  .
 
       - name: Check out Databank
         uses: actions/checkout@v4
         with:
           repository: MagnusSletten/Databank
           ref: dev_info_process
-          path:  ${{ github.workspace }}
+          path: .
 
       - name: Computing new data
         # now “Databank” unambiguously refers to $GITHUB_WORKSPACE/Databank
-        working-directory:  ${{ github.workspace }}/Databank
+        working-directory:  ./Databank
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TQDM_DISABLE: "True"
