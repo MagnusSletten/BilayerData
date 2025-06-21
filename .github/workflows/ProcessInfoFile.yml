@@ -31,9 +31,20 @@ jobs:
 
       - name: Compute new data
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TQDM_DISABLE: "True"
         working-directory: "Databank" 
         run: |
           pip install -e .  -r ./Scripts/DatabankLib/requirements-dev.txt
           python Scripts/WorkflowScripts/DockerRunInstructions/ProcessUserInfoFile.py
+          - name: Commit & push updated simulations
+       
+      - name: Commit & push updated simulations
+        uses: EndBug/add-and-commit@v9   
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          cwd: BilayerData            
+          add: "${{ env.NMLDB_SIMU_PATH }}/*"   
+          message: "Automated addition of simulation data"
+          default_author: github_actions        
+
