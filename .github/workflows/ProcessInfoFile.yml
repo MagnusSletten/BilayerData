@@ -44,9 +44,9 @@ jobs:
           python Scripts/WorkflowScripts/ProcessInfoFile.py \
             --info_file_path ../BilayerData/UserData
 
-      - name: Commit & push updated simulations
+      - name: Commit & push deletions and updates
         uses: EndBug/add-and-commit@v9
         with:
           cwd: BilayerData
-          add: "${{ env.NMLDB_SIMU_PATH }}/*"
-          message: "Automated addition of simulations"
+          add: "Simulations/* UserData/*.yml"
+          message: "Processed info file and updated simulations"
