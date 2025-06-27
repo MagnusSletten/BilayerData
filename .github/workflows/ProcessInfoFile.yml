@@ -10,7 +10,7 @@ on:
 
 jobs:
   AddData:
-    if: ${{ github.event.pull_request.head.repo.full_name == 'MagnusSletten/BilayerData' }}
+    if: ${{ github.event.pull_request.head.repo.full_name == 'MagnusPriv/BilayerData' && github.repository == 'MagnusPriv/BilayerData' }}
     runs-on: nrec-large
     environment: user_data_addition
     container:
@@ -22,7 +22,6 @@ jobs:
     steps:
       - name: Checkout BilayerData
         uses: actions/checkout@v4
-        # Ensure we use the PAT before any push actions
         with:
           token: ${{ secrets.USER_DATA_TOKEN }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -47,7 +46,6 @@ jobs:
 
       - name: Commit & push updated simulations
         uses: EndBug/add-and-commit@v9
-        # You can supply any valid token secret here (e.g., USER_DATA_TOKEN, GITHUB_TOKEN)
         with:
           cwd: BilayerData
           add: "${{ env.NMLDB_SIMU_PATH }}/*"
