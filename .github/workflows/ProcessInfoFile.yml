@@ -1,0 +1,54 @@
+name: Process info file from pull request
+
+permissions:
+  contents: write
+
+on:
+  pull_request:
+    paths:
+      - 'UserData/**'
+
+jobs:
+  AddData:
+    if: ${{ github.event.pull_request.head.repo.full_name == 'MagnusSletten/BilayerData' }}
+    runs-on: nrec-large
+    environment: user_data_addition
+    container:
+      image: nmrlipids/core-update
+      options: --user 1000:1000
+    env:
+      NMLDB_DATA_PATH: ${{ github.workspace }}/BilayerData
+      NMLDB_SIMU_PATH: ${{ github.workspace }}/BilayerData/Simulations
+    steps:
+      - name: Checkout BilayerData
+        uses: actions/checkout@v4
+        # Ensure we use the PAT before any push actions
+        with:
+          token: ${{ secrets.USER_DATA_TOKEN }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          path: BilayerData
+
+      - name: Checkout Databank
+        uses: actions/checkout@v4
+        with:
+          repository: MagnusSletten/Databank
+          ref: dev_info_process
+          path: Databank
+
+      - name: Compute new data
+        env:
+          TQDM_DISABLE: "True"
+        working-directory: "Databank"
+        run: |
+          pip install -e . -r ./Scripts/DatabankLib/requirements-dev.txt
+          python Scripts/WorkflowScripts/ProcessInfoFile.py \
+            --info_file_path ../BilayerData/UserData
+
+      - name: Commit & push updated simulations
+        uses: EndBug/add-and-commit@v9
+        # You can supply any valid token secret here (e.g., USER_DATA_TOKEN, GITHUB_TOKEN)
+        with:
+          cwd: BilayerData
+          add: "${{ env.NMLDB_SIMU_PATH }}/*"
+          message: "Automated addition of simulations"
