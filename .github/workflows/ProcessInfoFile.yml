@@ -5,9 +5,9 @@ permissions:
 
 on:
   pull_request_target:
+    types: [opened]
     paths:
       - 'UserData/**'
-
 jobs:
   AddData:
     if: "${{ github.event.pull_request.head.repo.full_name == 'MagnusSletten/BilayerData' && github.repository == 'MagnusPriv/BilayerData' }}"
