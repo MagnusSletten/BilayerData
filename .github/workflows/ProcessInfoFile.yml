@@ -42,7 +42,7 @@ jobs:
         run: |
           pip install -e . -r ./Scripts/DatabankLib/requirements-dev.txt
           python Scripts/WorkflowScripts/ProcessInfoFile.py \
-            --info_file_path ../BilayerData/UserData
+            --info_file_path ../BilayerData/UserData/info.yml
 
       - name: Commit & push deletions and updates
         uses: EndBug/add-and-commit@v9
