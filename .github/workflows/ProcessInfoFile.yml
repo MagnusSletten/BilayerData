@@ -14,7 +14,7 @@ jobs:
     runs-on: nrec-large
     environment: user_data_addition
     container:
-      image: nmrlipids/core-update
+      image: nmrlipids/core
       options: --user 1000:1000
     env:
       NMLDB_DATA_PATH: ${{ github.workspace }}/BilayerData
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout BilayerData
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.USER_DATA_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           path: BilayerData
@@ -31,8 +31,8 @@ jobs:
       - name: Checkout Databank
         uses: actions/checkout@v4
         with:
-          repository: MagnusSletten/Databank
-          ref: dev_info_process
+          repository: NMRLipids/Databank
+          ref: main
           path: Databank
 
       - name: Compute new data
