@@ -1,7 +1,8 @@
 name: Process info file from pull request
 
 permissions:
-  contents: write
+   contents: write       
+   pull-requests: write   
 
 on:    
   pull_request_target:
