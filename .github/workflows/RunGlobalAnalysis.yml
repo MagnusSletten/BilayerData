@@ -12,7 +12,7 @@ on:
 jobs:
   AddData: #Remember to add back the check for merge status
     if: >  
-      github.event.pull_request.head.repo.owner == 'MagnusSletten'  &&
+      github.event.pull_request.head.repo.full_name == 'MagnusSletten/BilayerData'  &&
       github.repository == 'MagnusPriv/BilayerData'
     runs-on: ubuntu-latest
     container:
