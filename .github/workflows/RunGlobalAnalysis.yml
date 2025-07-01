@@ -6,8 +6,9 @@ permissions:
 on:    
   pull_request_target:
     types: [closed]
-    paths:
-      - 'Simulations/**'
+#    paths: 
+#      - 'Simulations/**'
+# Add paths back in.
 jobs:
   AddData: #Remember to add back the check for merge status
     if: >  
