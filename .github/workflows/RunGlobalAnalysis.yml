@@ -55,5 +55,6 @@ jobs:
           body: |
             Automated simulation files generated from merged PR #${{ github.event.pull_request.number }}.
           add-paths: |
-            BilayerData/Simulations/**
+            Simulations/**
+            Ranking/**
           path: BilayerData
