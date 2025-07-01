@@ -60,7 +60,4 @@ jobs:
                 - QualityEvaluation  
                 - makeRanking 
             Related to the merge of PR #${{ github.event.pull_request.number }}. 
-          add-paths: |
-            Simulations/**
-            Ranking/**
           path: BilayerData
