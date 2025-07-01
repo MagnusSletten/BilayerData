@@ -51,10 +51,15 @@ jobs:
           commit-message: "Run global analysis methods on simulations (Automated)"
           committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          branch: update/sims-pr${{ github.event.pull_request.number }}
+          title: Global simulation analysis after simulation addition
+          branch: analysis/update-sims-pr$${{ github.event.pull_request.number }}
+          base: main
           body: |
-            Automated run of scripts related to ranking, qualityEvaluation and searchDATABANK scripts after merge of
-            #${{ github.event.pull_request.number }}.
+            This PR automatically runs the global analysis scripts:
+                - searchDATABANK  
+                - QualityEvaluation  
+                - makeRanking 
+            Related to the merge of PR #${{ github.event.pull_request.number }}. 
           add-paths: |
             Simulations/**
             Ranking/**
