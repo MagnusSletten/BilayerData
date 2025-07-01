@@ -1,7 +1,7 @@
 name: Process info file from pull request
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   pull_request_target:
@@ -31,8 +31,8 @@ jobs:
       - name: Checkout Databank
         uses: actions/checkout@v4
         with:
-          repository: NMRLipids/Databank
-          ref: main
+          repository: MagnusSletten/Databank
+          ref: data_collision_fix
           path: Databank
 
       - name: Compute new data

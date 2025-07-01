@@ -1,0 +1,58 @@
+name: Process info file from pull request
+
+permissions:
+  contents: write
+
+on:    
+  pull_request_target:
+    types: [closed]
+    paths:
+      - 'Simulations/**'
+jobs:
+  AddData: #Remember to add back the check for merge status
+    if: >  
+      github.event.pull_request.head.repo.owner == 'MagnusSletten'  &&
+      github.repository == 'MagnusPriv/BilayerData'
+    runs-on: ubuntu-latest
+    container:
+      image: nmrlipids/core
+      options: --user 1001:118
+    env:
+      NMLDB_DATA_PATH: ${{ github.workspace }}/BilayerData
+      NMLDB_SIMU_PATH: ${{ github.workspace }}/BilayerData/Simulations
+    steps:
+      - name: Checkout BilayerData
+        uses: actions/checkout@v4
+        with:
+          path: BilayerData
+
+      - name: Checkout Databank
+        uses: actions/checkout@v4
+        with:
+          repository: MagnusSletten/Databank
+          ref: data_collision_fix
+          path: Databank
+
+      - name: Compute new data
+        env:
+          TQDM_DISABLE: "True"
+        working-directory: "Databank"
+        run: |
+          pip install -e . -r ./Scripts/DatabankLib/requirements-dev.txt
+          python Scripts/WorkflowScripts/RunAnalysis.py 
+           
+      - name: Create Pull Request with simulation updates
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Only include the new simulation files
+          commit-message: "Ran global analysis and updated simulations"
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          branch: update/sims-pr${{ github.event.pull_request.number }}
+          title: Run global simulation processing after #${{ github.event.pull_request.number }}
+          body: |
+            Automated simulation files generated from merged PR #${{ github.event.pull_request.number }}.
+          add-paths: |
+            BilayerData/Simulations/**
+          path: BilayerData
