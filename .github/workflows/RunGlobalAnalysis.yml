@@ -54,7 +54,7 @@ jobs:
           committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           title: Global simulation analysis after simulation addition
-          branch: analysis/update-sims-pr$${{ github.event.pull_request.number }}
+          branch: analysis/update-sims-${{ github.run_id }}-${{ github.event.pull_request.number }}
           base: main
           labels: |
             skip-updateIDs
