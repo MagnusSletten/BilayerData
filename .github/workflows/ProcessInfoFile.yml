@@ -46,7 +46,7 @@ jobs:
          
       - name: Generate_New_IDs
         run: |
-          . .github/workflows/CheckIDs.sh generate
+          .github/workflows/CheckIDs.sh generate
         working-directory: BilayerData
 
       - name: Commit & push deletions and updates
