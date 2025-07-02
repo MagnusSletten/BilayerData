@@ -44,7 +44,7 @@ jobs:
           python Scripts/WorkflowScripts/ProcessInfoFile.py \
             --info_file_path ../BilayerData/UserData/info.yml
          
-      - id: Generate_New_IDs
+      - name: Generate_New_IDs
         run: |
           . .github/workflows/CheckIDs.sh generate
         working-directory: BilayerData
