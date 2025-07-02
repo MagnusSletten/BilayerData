@@ -28,6 +28,7 @@ jobs:
     ## Execute the step if the pull request has been accepted
     if: ${{
         github.event.pull_request.merged == true &&
+        github.event.pull_request.head.repo.full_name == 'MagnusPriv/BilayerData' &&
         ! contains(github.event.pull_request.labels.*.name, 'UpdateID') &&
         ! contains(github.event.pull_request.labels.*.name, 'skip-updateIDs') 
         }}
