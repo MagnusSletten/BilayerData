@@ -43,6 +43,11 @@ jobs:
           pip install -e . -r ./Scripts/DatabankLib/requirements-dev.txt
           python Scripts/WorkflowScripts/ProcessInfoFile.py \
             --info_file_path ../BilayerData/UserData/info.yml
+         
+      - id: Generate_New_IDs
+        run: |
+          . .github/workflows/CheckIDs.sh generate
+        working-directory: BilayerData
 
       - name: Commit & push deletions and updates
         uses: EndBug/add-and-commit@v9

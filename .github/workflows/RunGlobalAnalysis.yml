@@ -56,6 +56,9 @@ jobs:
           title: Global simulation analysis after simulation addition
           branch: analysis/update-sims-pr$${{ github.event.pull_request.number }}
           base: main
+          labels: |
+            skip-updateIDs
+            AutoPR
           body: |
             This PR automatically runs the global analysis scripts:
                 - searchDATABANK  
