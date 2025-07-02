@@ -9,6 +9,8 @@ on:
     types: [closed]
     paths: 
       - 'Simulations/**'
+    branches: 
+      - main 
 
 jobs:
   Run_Analysis: #Remember to add back the check for merge status
@@ -41,7 +43,7 @@ jobs:
           TQDM_DISABLE: "True"
         working-directory: "Databank"
         run: |
-          pip install -e . -r ./Scripts/DatabankLib/requirements-dev.txt
+          pip install -e . -r ./Scripts/DatabankLib/requirements.txt
           python Scripts/WorkflowScripts/RunAnalysis.py 
            
       - name: Create Pull Request with simulation updates
