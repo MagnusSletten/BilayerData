@@ -37,7 +37,16 @@ max_id=$( cat COUNTER_ID )
 # Find duplicates in the array of IDs; from https://stackoverflow.com/questions/22055238/search-duplicate-element-array
 duplicates=($( printf '%s\n' "${ids[@]}"|awk '!($0 in seen){seen[$0];next} 1' ))
 
-if [[ ${#duplicates[@]} -eq 0 ]] && [[ ${idlist[0]} -ne 0 ]]; then
+# Find distinct negative values
+negatives=()
+for id in "${ids[@]}"; do
+  if [[ $id -lt 0 ]]; then
+    negatives+=("$id")
+  fi
+done
+negatives=($(printf '%s\n' "${negatives[@]}" | sort -u))
+
+if [[ ${#duplicates[@]} -eq 0 ]] && [[ ${idlist[0]} -ne 0 ]] && [[ ${#negatives[@]} -eq 0 ]]; then
  echo "### :white_check_mark: All systems have an unique ID associated" >> $GITHUB_STEP_SUMMARY
 
  # No IDs were generated
@@ -47,7 +56,8 @@ else
  echo "### :warning: Duplicates and/or missing IDs have been found" >> $GITHUB_STEP_SUMMARY
  echo " " >> $GITHUB_STEP_SUMMARY
 
- fixlist=()
+# Using dictonary to store ids and paths
+ declare -A fixlist
  unique_ids=()
 
  # Repeated IDs
@@ -60,11 +70,19 @@ else
   unique_ids=(0 ${unique_ids[@]})
  fi
 
+ # Negative IDs
+ if [[ ${#negatives[@]} -ne 0 ]]; then
+  unique_ids+=("${negatives[@]}")
+ fi
+
+ # De-duplicate after merging categories
+ unique_ids=($(printf '%s\n' "${unique_ids[@]}" | sort -u))
+
  # Find all duplicated and missing IDs; ID matches the index of the array
  for j in $( seq ${#paths[@]} ); do
   for u in ${unique_ids[@]}; do
    if [[ ${ids[$((${j}-1))]} -eq ${u} ]]; then
-    fixlist[${u}]+=${paths[$((${j}-1))]}" "
+    fixlist["$u"]+="${paths[$((${j}-1))]} "
     break
    fi
   done
@@ -73,9 +91,15 @@ else
  # Print the results
  counter=0
  for u in $( printf '%s\n' "${unique_ids[@]}" | sort -r  ); do
-  list=(${fixlist[${u}]})
+  list=(${fixlist["$u"]})
   if [[ ${u} -eq 0 ]]; then
    echo "#### Systems with no ID assigned:" >> $GITHUB_STEP_SUMMARY
+   for item in ${list[@]}; do
+    echo \`${item}\` >> $GITHUB_STEP_SUMMARY
+   done
+   counter=$((${counter}+${#list[@]}))
+  elif [[ ${u} -lt 0 ]]; then
+   echo "#### Systems with negative index ${u}:" >> $GITHUB_STEP_SUMMARY
    for item in ${list[@]}; do
     echo \`${item}\` >> $GITHUB_STEP_SUMMARY
    done
@@ -97,13 +121,21 @@ else
   counter=0
   # Apply changes in the IDs of the systems
   for u in $( printf '%s\n' "${unique_ids[@]}" | sort -r  ); do
-   list=(${fixlist[${u}]})
+   list=(${fixlist["$u"]})
    if [[ ${u} -eq 0 ]]; then
     echo "#### Fixing missing indices..." >> $GITHUB_STEP_SUMMARY
     ordered=($( for path in ${list[@]}; do echo ${path} $( date -d $( grep "DATEOFRUNNING:" ${path}/README.yaml | cut -d" " -f2 | awk -F' |/' '{printf "%s-%s-%s %s",$3,$2,$1,$4}' ) +%s ) $( git log -1 --pretty="format:%ct" "${path}/README.yaml" ); done | sort -n -k2,3 | cut -d" " -f1 ))
     for path in ${ordered[@]}; do
      echo "#### ID "${new_id[counter]}" :arrow_right: \`"${path}"\`" >> $GITHUB_STEP_SUMMARY
      echo "ID: "${new_id[counter]} >> ${path}/README.yaml
+     counter=$((${counter}+1))
+    done
+   elif [[ ${u} -lt 0 ]]; then
+    echo "#### Fixing negative index ${u}..." >> $GITHUB_STEP_SUMMARY
+    ordered=($( for path in ${list[@]}; do echo ${path} $( date -d $( grep "DATEOFRUNNING:" ${path}/README.yaml | cut -d" " -f2 | awk -F' |/' '{printf "%s-%s-%s %s",$3,$2,$1,$4}' ) +%s ) $( git log -1 --pretty="format:%ct" "${path}/README.yaml" ); done | sort -n -k2,3 | cut -d" " -f1 ))
+    for path in ${ordered[@]}; do
+     echo "#### ID "${new_id[counter]}" :arrow_right: \`"${path}"\`" >> $GITHUB_STEP_SUMMARY
+     sed -i"" "s/ID:.*/ID: ${new_id[counter]}/" ${path}/README.yaml
      counter=$((${counter}+1))
     done
    else
@@ -124,3 +156,4 @@ else
   echo "newids=true" >> $GITHUB_OUTPUT
  fi
 fi
+
