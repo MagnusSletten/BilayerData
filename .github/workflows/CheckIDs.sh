@@ -37,8 +37,15 @@ max_id=$( cat COUNTER_ID )
 # Find duplicates in the array of IDs; from https://stackoverflow.com/questions/22055238/search-duplicate-element-array
 duplicates=($( printf '%s\n' "${ids[@]}"|awk '!($0 in seen){seen[$0];next} 1' ))
 
-if [[ ${#duplicates[@]} -eq 0 ]] && [[ ${idlist[0]} -ne 0 ]]; then
- echo "### :white_check_mark: All systems have an unique ID associated" >> $GITHUB_STEP_SUMMARY
+# Collect the paths with ID == -1 
+for j in $( seq ${#paths[@]} ); do
+  if [[ ${ids[$((${j}-1))]} -eq -1 ]]; then
+    neg_paths+=(${paths[$((${j}-1))]})
+  fi
+done
+
+if [[ ${#duplicates[@]} -eq 0 ]] && [[ ${idlist[0]} -ne 0 ]] && [[ ${#neg_paths[@]} -eq 0 ]]; then
+ echo "### :white_check_mark: All systems have an unique positive ID associated" >> $GITHUB_STEP_SUMMARY
 
  # No IDs were generated
  echo "newids=false" >> $GITHUB_OUTPUT
@@ -88,11 +95,21 @@ else
    counter=$((${counter}+${#list[@]}-1))
   fi
  done
+
+ # List ID = -1 
+ if [[ ${#neg_paths[@]} -gt 0 ]]; then
+  echo "#### Systems with ID -1:" >> $GITHUB_STEP_SUMMARY
+  for p in ${neg_paths[@]}; do
+    echo \`${p}\` >> $GITHUB_STEP_SUMMARY
+  done
+  counter=$((${counter}+${#neg_paths[@]}))
+ fi
+
  echo "#### Number of systems to be fixed: "${counter} >> $GITHUB_STEP_SUMMARY
  echo " " >> $GITHUB_STEP_SUMMARY
 
  if [[ "${1}" = "generate" ]]; then
-  # Generate a list of valid IDs
+  # Generate a list of valid IDs (for duplicates/missing; -1 handled below)
   new_id=( $( seq $((${max_id}+1)) $((${max_id}+${counter})) ) )
   counter=0
   # Apply changes in the IDs of the systems
@@ -116,11 +133,22 @@ else
     done
    fi
   done
- 
-  # Update the list of used IDs
-  echo ${new_id[$((${counter}-1))]} > COUNTER_ID
 
-  # New IDs were generated
+  # Fix ID = -1 
+  if [[ ${#neg_paths[@]} -gt 0 ]]; then
+    echo "#### Fixing ID -1 entries..." >> $GITHUB_STEP_SUMMARY
+    for p in ${neg_paths[@]}; do
+      echo "#### ID ${new_id[counter]} :arrow_right: \`${p}\`" >> $GITHUB_STEP_SUMMARY
+      sed -i"" "s/^ID:.*/ID: ${new_id[counter]}/" ${p}/README.yaml
+      counter=$((${counter}+1))
+    done
+  fi
+
+  # Final update of the last assigned ID
+  if [[ ${counter} -gt 0 ]]; then
+    echo ${new_id[$((${counter}-1))]} > COUNTER_ID
+  fi
+
   echo "newids=true" >> $GITHUB_OUTPUT
- fi
+fi
 fi
