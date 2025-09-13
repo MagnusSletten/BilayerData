@@ -1,4 +1,4 @@
-name: Validate molecules
+name: Validate info file
 permissions:
   contents: read
 
@@ -9,7 +9,7 @@ on:
       - 'UserData/**'
 jobs:
   ValidateInfoFile:
-    if: github.event.pull_request.head.repo.full_name == 'NMRlipids/UserData' && github.repository == 'NMRlipids/BilayerData' 
+    if: "${{ github.event.pull_request.head.repo.full_name == 'NMRlipids/UserData' && github.repository == 'NMRlipids/BilayerData' }}"
     runs-on: ubuntu-latest
     container:
       image: nmrlipids/core

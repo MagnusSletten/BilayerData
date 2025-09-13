@@ -1,9 +1,11 @@
-name: Validate Data
+name: Validate Molecules
+permissions:
+  contents: read
 
 on: 
-    pull_request_target: 
-        branches: main
-        paths: Molecules/**
+  pull_request_target: 
+      branches: main
+      paths: Molecules/**
 jobs: 
     Validate_Databank:
         if: github.repository == 'NMRLipids/BilayerData' 
