@@ -1,0 +1,83 @@
+name: Validate README files
+permissions:
+  contents: read
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+    paths:
+      - "**/README.yaml"
+  workflow_dispatch:
+
+jobs:
+  Validate_Readme_Files:
+    # Keep the strict guard for PR-triggered runs.
+    # Allow manual runs unconditionally.
+    if: >
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event.pull_request.head.repo.full_name == 'NMRlipids/UserData' &&
+         github.repository == 'NMRlipids/BilayerData')
+      }}
+    runs-on: ubuntu-latest
+    env:
+      FMDL_DATA_PATH: ${{ github.workspace }}/BilayerData
+
+    steps:
+      # For PR-triggered runs, check out the PR head repo/ref (your current logic)
+      - name: Checkout PR head (UserData)
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          path: BilayerData
+          persist-credentials: false
+
+      # For manual runs, check out this repo’s default branch (or the branch you clicked “Run workflow” from)
+      - name: Checkout repository (manual run)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v6
+        with:
+          path: BilayerData
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install validator
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade fairmd-lipids
+
+      - name: Validate all README.yaml files
+        shell: bash
+        working-directory: BilayerData
+        run: |
+          set -euo pipefail
+
+          mapfile -d '' files < <(find . -type f -name 'README.yaml' -print0)
+
+          if (( ${#files[@]} == 0 )); then
+            echo "No README.yaml files found"
+            exit 0
+          fi
+
+          echo "Found ${#files[@]} README.yaml files"
+          echo
+
+          failed=0
+          for f in "${files[@]}"; do
+            echo "Validating $f"
+            python -m fairmd.lipids.schema_validation.validate_yaml "$f" || failed=1
+            echo
+          done
+
+          if (( failed )); then
+            echo "❌ One or more README.yaml files failed validation"
+            exit 1
+          else
+            echo "✅ All README.yaml files are valid"
+          fi
