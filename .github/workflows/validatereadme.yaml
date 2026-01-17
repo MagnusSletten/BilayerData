@@ -1,0 +1,51 @@
+name: Validate Readme Files 
+
+on:
+  pull_request_target:
+    paths: 'Simulations/**/README.yaml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  Check-Readme:
+    runs-on: ubuntu-latest
+    env:
+      FMDL_DATA_PATH: ${{ github.workspace }}/BilayerData
+
+    steps:
+      - name: Checkout BilayerData
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          path: BilayerData
+          persist-credentials: false
+
+      - name: Install the gh cli
+        uses: ksivamuthu/actions-setup-gh-cli@v3
+        with:
+          version: 2.83.0
+
+      - name: Install FAIRMD_lipids dependencies
+        run: |
+          pip install git+https://github.com/NMRLipids/FAIRMD_lipids.git
+
+      - name: Find changed readme.yaml files
+        id: files
+        working-directory: BilayerData
+        run: |
+          changed_files=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} \
+            | grep -E 'diff --git a/Simulations/**.README.yaml \
+            | awk '{print $3}' \
+            | sed 's|^a/||' \
+          changed_files_list=$(echo "$changed_files" | tr '\n' ' ' | xargs)
+          echo "changed_files=${changed_files_list}" >> $GITHUB_OUTPUT
+          echo "Changed files: $changed_files_list"
+
+      - name: Run readme validator
+        if: steps.files.outputs.changed_files != ''
+        working-directory: BilayerData
+        run: |
+          python -m fairmd.lipids.schema_validation.validate_yaml --schema readme ${{ steps.files.outputs.changed_files }}
