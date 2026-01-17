@@ -33,48 +33,9 @@ jobs:
           pip install git+https://github.com/NMRLipids/FAIRMD_lipids.git
 
       - name: Find changed readme.yaml files
-        id: files
+        working-directory: BilayerData
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          changed_files="$(
-            gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
-            | grep -E '^Simulations/.+README\.yaml$' \
-            || true
-          )"
-      
-          changed_files_list="$(echo "$changed_files" | tr '\n' ' ' | xargs)"
-          echo "changed_files=$changed_files_list" >> "$GITHUB_OUTPUT"
-          echo "Changed files: $changed_files_list"
+            python -m fairmd.lipids.schema_validation.validate_yaml --schema readme $(find Simulations -name README.yaml)
 
-      - name: Run readme validator
-        if: steps.files.outputs.changed_files != ''
-        working-directory: BilayerData
-        shell: bash
-        run: |
-          set +e
-          out="$(python -m fairmd.lipids.schema_validation.validate_yaml --schema readme ${{ steps.files.outputs.changed_files }} 2>&1)"
-          status=$?
-      
-          errors="$(printf '%s\n' "$out" | grep '^ERROR:' || true)"
-          if [ -z "$errors" ]; then
-            errors="None"
-          fi
-      
-          {
-            echo "## README.yaml validation"
-            echo
-            echo "**Changed files:**"
-            echo
-            for f in ${{ steps.files.outputs.changed_files }}; do
-              echo "- \`$f\`"
-            done
-            echo
-            echo "**Errors:**"
-            echo
-            echo '```text'
-            printf '%s\n' "$errors"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-      
-          exit $status
