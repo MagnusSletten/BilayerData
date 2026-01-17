@@ -12,9 +12,6 @@ COMPOSITION:
   POPE:
     NAME: POPE
     MAPPING: mappingPOPEberger.yaml
-    COUNT:
-    - 64
-    - 64
   SOL:
     NAME: SOL
     MAPPING: mappingSPCwater.yaml
