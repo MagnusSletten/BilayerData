@@ -32,10 +32,25 @@ jobs:
         run: |
           pip install git+https://github.com/NMRLipids/FAIRMD_lipids.git
 
-      - name: Find changed readme.yaml files
+      - name: Validate all README.yaml files 
         working-directory: BilayerData
-        env:
-          GH_TOKEN: ${{ github.token }}
+        shell: bash --noprofile --norc {0}
         run: |
-            python -m fairmd.lipids.schema_validation.validate_yaml --schema readme $(find Simulations -name README.yaml)
+          out="$(find Simulations -name README.yaml -print0 \
+            | xargs -0 python -m fairmd.lipids.schema_validation.validate_yaml --schema readme 2>&1)"
+          status=$?
+      
+          errors="$(printf '%s\n' "$out" | grep '^ERROR:' || true)"
+          [ -n "$errors" ] || errors="None"
+      
+          {
+            echo "## README.yaml validation"
+            echo
+            echo "**Errors:**"
+            echo
+            echo '```text'
+            printf '%s\n' "$errors"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
+            exit $status
