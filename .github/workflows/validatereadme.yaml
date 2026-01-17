@@ -34,14 +34,17 @@ jobs:
 
       - name: Find changed readme.yaml files
         id: files
-        working-directory: BilayerData
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          changed_files=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} \
-            | grep -E 'diff --git a/Simulations/**.README.yaml \
-            | awk '{print $3}' \
-            | sed 's|^a/||' \
-          changed_files_list=$(echo "$changed_files" | tr '\n' ' ' | xargs)
-          echo "changed_files=${changed_files_list}" >> $GITHUB_OUTPUT
+          changed_files="$(
+            gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
+            | grep -E '^Simulations/.+README\.yaml$' \
+            || true
+          )"
+      
+          changed_files_list="$(echo "$changed_files" | tr '\n' ' ' | xargs)"
+          echo "changed_files=$changed_files_list" >> "$GITHUB_OUTPUT"
           echo "Changed files: $changed_files_list"
 
       - name: Run readme validator
