@@ -1,7 +1,5 @@
 DOI: 10.5281/zenodo.6943413
 SOFTWARE: gromacs
-TRJ:
-- - SLPC_medium.xtc
 TPR:
 - - SLPC_medium.tpr
 PREEQTIME: 0
