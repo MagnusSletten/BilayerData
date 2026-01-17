@@ -47,16 +47,19 @@ jobs:
           echo "changed_files=$changed_files_list" >> "$GITHUB_OUTPUT"
           echo "Changed files: $changed_files_list"
 
-      - name: Run readme validator
+      - name: Run readme validator (report errors only)
         if: steps.files.outputs.changed_files != ''
         working-directory: BilayerData
+        shell: bash
         run: |
-          python -m fairmd.lipids.schema_validation.validate_yaml --schema readme ${{ steps.files.outputs.changed_files }}
-          
-      - name: Write summary
-        if: always() && steps.files.outputs.changed_files != ''
-        working-directory: BilayerData
-        run: |
+          set +e
+          out="$(
+            python -m fairmd.lipids.schema_validation.validate_yaml \
+              --schema readme \
+              ${{ steps.files.outputs.changed_files }} 2>&1
+          )"
+          status=$?
+      
           {
             echo "## README.yaml validation"
             echo
@@ -69,6 +72,8 @@ jobs:
             echo "**Errors:**"
             echo
             echo '```text'
-            grep -E '^(ERROR: INVALID:|ERROR:   -> )' validator.log || echo "None"
+            echo "$out" | grep -E '^(ERROR: INVALID:|ERROR:   -> )' || echo "None"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      
+          exit $status
