@@ -20,9 +20,6 @@ COMPOSITION:
     MAPPING: mappingCHOLESTEROLcharmm.yaml
   POPC:
     NAME: POPC
-    COUNT:
-    - 100
-    - 100
     MAPPING: mappingPOPCcharmm.yaml
   SOL:
     NAME: TIP3
