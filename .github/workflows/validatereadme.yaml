@@ -56,7 +56,7 @@ jobs:
           out="$(python -m fairmd.lipids.schema_validation.validate_yaml --schema readme ${{ steps.files.outputs.changed_files }} 2>&1)"
           status=$?
       
-          errors="$(printf '%s\n' "$out" | grep -E '^(ERROR: INVALID:|ERROR:   -> )' || true)"
+          errors="$(printf '%s\n' "$out" | grep '^ERROR:' || true)"
           if [ -z "$errors" ]; then
             errors="None"
           fi
