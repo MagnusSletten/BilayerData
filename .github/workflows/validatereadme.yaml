@@ -52,3 +52,23 @@ jobs:
         working-directory: BilayerData
         run: |
           python -m fairmd.lipids.schema_validation.validate_yaml --schema readme ${{ steps.files.outputs.changed_files }}
+          
+      - name: Write summary
+        if: always() && steps.files.outputs.changed_files != ''
+        working-directory: BilayerData
+        run: |
+          {
+            echo "## README.yaml validation"
+            echo
+            echo "**Changed files:**"
+            echo
+            for f in ${{ steps.files.outputs.changed_files }}; do
+              echo "- \`$f\`"
+            done
+            echo
+            echo "**Errors:**"
+            echo
+            echo '```text'
+            grep -E '^(ERROR: INVALID:|ERROR:   -> )' validator.log || echo "None"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
