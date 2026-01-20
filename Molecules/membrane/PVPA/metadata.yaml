@@ -3,7 +3,7 @@ NMRlipids:
   name: "1-hexadecanoyl-2-(11Z-octadecenoyl)-sn-glycero-3-phosphate"
   charge: -1
 sameAs:
-  ChEBI: CHEBI:89530
+  ChEBI: CHEBI:89530 #s
   pubchem.compound: 9547158
   lipidmaps: LMGP10010007
   slm: SLM:000026217
