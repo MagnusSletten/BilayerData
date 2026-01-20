@@ -50,6 +50,8 @@ jobs:
 
       - name: Find changed metadata.yaml files
         id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
         working-directory: BilayerData
         run: |
           changed_files=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} \
